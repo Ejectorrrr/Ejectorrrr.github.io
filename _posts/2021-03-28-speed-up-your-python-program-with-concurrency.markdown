@@ -1,4 +1,10 @@
-# （翻译）用并发加速你的Python程序
+---
+layout: post
+title: （翻译）用并发加速你的Python程序
+category: 翻译
+---
+
+
 
 原文链接：https://realpython.com/python-concurrency/
 
