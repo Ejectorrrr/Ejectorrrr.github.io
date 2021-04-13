@@ -1,6 +1,6 @@
 ---
 layout: post
-title: （翻译）用并发加速你的Python程序
+title: 【翻译】用并发加速你的Python程序
 category: 翻译
 ---
 

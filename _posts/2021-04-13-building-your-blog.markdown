@@ -1,6 +1,7 @@
 ---
 layout: post
 title: 创建个人博客
+category: 原创
 ---
 
 
