@@ -1,5 +1,5 @@
 ---
 layout: post
-title: 分治与贪心
+title: 分治与贪心篇
 ---
 

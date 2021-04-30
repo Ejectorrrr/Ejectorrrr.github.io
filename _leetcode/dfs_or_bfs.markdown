@@ -1,6 +1,6 @@
 ---
 layout: post
-title: DFS/BFS
+title: DFS/BFS篇
 ---
 
 主要数据结构：
