@@ -25,3 +25,7 @@ category: 原创
 
 - [数组篇]({% link _leetcode/array.markdown %})
 - [双指针篇]({% link _leetcode/twopointers.markdown %})
+- [DFS/BFS篇]({% link _leetcode/dfs_or_bfs.markdown %})
+- [分治/贪心篇]({% link _leetcode/divide_and_conquer_or_greedy.markdown %})
+- 
+
