@@ -4,11 +4,14 @@ title: 【翻译】用并发加速你的Python程序
 category: 翻译
 ---
 
-本篇是译文，原文链接：https://realpython.com/python-concurrency/
+本篇是译文，原文链接：<https://realpython.com/python-concurrency/>
 
 ---
 
-[toc]
+__目录__
+* TOC
+{:toc}
+---
 
 在这篇文章中，你将了解下面的概念：
 
@@ -61,13 +64,13 @@ __pre-emptive multitasking__ 的便利是，线程代码不需要针对切换做
 
 比CPU慢的设备很多，不过大多不会与你的程序交互，其中交互最频繁的是文件系统和网络连接。
 
-![](/Users/wangchenyang3/SourceRepos/Own/Ejectorrrr.github.io/_posts/images/speed-up-your-python-program-with-concurrency/3-1.jpg)
+![](/assets/images/speed-up-your-python-program-with-concurrency/3-1.jpg)
 
 在上图中，蓝色框表示程序运行的时间，红色框表示等待IO完成的时间。网络请求比CPU指令运行的时间高出几个数量级，因此你的程序大部分时间都在等待。这就是浏览器在大部分时间所做的。
 
 另一个反面是，CPU密集型程序需要做很多计算，而并不需要与文件或网络交互，限制程序执行速度的资源就只有CPU。以下是CPU密集型程序的图。
 
-![](/Users/wangchenyang3/SourceRepos/Own/Ejectorrrr.github.io/_posts/images/speed-up-your-python-program-with-concurrency/3-2.jpg)
+![](/assets/images/speed-up-your-python-program-with-concurrency/3-2.jpg)
 
 下一节的例子会展示，不同形式的并发会使CPU密集型和IO密集型程序变好或变差。将并发添加到程序中会增加额外的代码和复杂性，你必须决定这样做是否能带来潜在的加速。在本文结束时，你将有足够的知识来作出决定。
 
@@ -222,7 +225,7 @@ Downloaded 160 in 3.7238826751708984 seconds
 
 下图是对应的时序流程图：
 
-![](/Users/wangchenyang3/SourceRepos/Own/Ejectorrrr.github.io/_posts/images/speed-up-your-python-program-with-concurrency/4-1.jpg)
+![](/assets/images/speed-up-your-python-program-with-concurrency/4-1.jpg)
 
 它在同一时刻使用多个线程开启多个网络访问，因此将等待时间重叠，获得了更快的速度。
 
@@ -364,7 +367,7 @@ Downloaded 160 in 2.5727896690368652 seconds
 
 执行时间的流程图看起来和`threading`版代码的很像，区别在于 __I/O请求都是由同一个线程发出的__：
 
-![](/Users/wangchenyang3/SourceRepos/Own/Ejectorrrr.github.io/_posts/images/speed-up-your-python-program-with-concurrency/4-2.jpg)
+![](/assets/images/speed-up-your-python-program-with-concurrency/4-2.jpg)
 
 缺少类似`ThreadPoolExecutor`的包装类（wrapper）使得代码比`threading`版更复杂。这倒是恰好说明，为了获得更好的性能往往需要额外的工作。额外复杂度的另一收益是，它强迫你去思考一个给定的任务何时会被切换，这会帮助你创造一个更好更快的设计。
 
@@ -440,7 +443,7 @@ if __name__ == "__main__":
 
 `multiprocess`版的代码只需要很少的额外代码，并且能够充分利用计算机中的CPU资源。执行时间的流程图如下：
 
-![](/Users/wangchenyang3/SourceRepos/Own/Ejectorrrr.github.io/_posts/images/speed-up-your-python-program-with-concurrency/4-3.jpg)
+![](/assets/images/speed-up-your-python-program-with-concurrency/4-3.jpg)
 
 ##### `multiprocessing`版的问题
 
@@ -494,7 +497,7 @@ if __name__ == "__main__":
 
 该代码调用了20次`cpu_bound()`，每次都传入一个不同的大数。整个过程都运行在单核单进程单线程上，执行时间的流程图如下：
 
-![](/Users/wangchenyang3/SourceRepos/Own/Ejectorrrr.github.io/_posts/images/speed-up-your-python-program-with-concurrency/5-1.jpg)
+![](/assets/images/speed-up-your-python-program-with-concurrency/5-1.jpg)
 
 不同于I/O密集型，CPU密集型的运行时间都基本一致：
 
@@ -526,7 +529,7 @@ Duration 10.407078266143799 seconds
 
 终于到了见证`multiprocessing`闪耀的时候了。不同于其他并发库，`multiprocessing`被明确地设计用于在多CPU间分摊负载，下面是执行时间的流程图：
 
-![](/Users/wangchenyang3/SourceRepos/Own/Ejectorrrr.github.io/_posts/images/speed-up-your-python-program-with-concurrency/5-2.jpg)
+![](/assets/images/speed-up-your-python-program-with-concurrency/5-2.jpg)
 
 下面是代码：
 
