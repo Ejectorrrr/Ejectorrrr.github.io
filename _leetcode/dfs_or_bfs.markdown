@@ -706,6 +706,40 @@ class Solution:
 
 
 
+### 22. Generate parentheses
+
+核心方法：`多叉树DFS`，`回溯`
+
+解题思路：
+
+```python
+"""
+数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
+
+链接：https://leetcode-cn.com/problems/generate-parentheses/
+"""
+class Solution:
+    def __init__(self):
+        self.results = []
+
+    def generateParenthesis(self, n: int) -> List[str]:
+        self.dfs(n, 0, 0, '')
+        return self.results
+    
+    def dfs(self, n: int, left_count: int, right_count: int, result: str) -> None:
+        if n == left_count and n == right_count:
+            self.results.append(result)
+        
+        # 任何时候都可以放置左括号
+        if left_count < n:
+            self.dfs(n, left_count + 1, right_count, result + '(')
+        # 右括号数不能多于左括号
+        if right_count < left_count and right_count < n:
+            self.dfs(n, left_count, right_count + 1, result + ')')
+```
+
+
+
 ## 二叉树的BFS
 
 只有迭代实现，没有递归实现（不使用栈）
@@ -907,57 +941,6 @@ class Solution:
 
 
 
-### 542. 01 matrix
-
-核心方法：`图的BFS`
-
-解题思路：从与0相邻的1开始
-
-```python
-"""
-给定一个由 0 和 1 组成的矩阵，找出每个元素到最近的 0 的距离。
-
-两个相邻元素间的距离为1。
-
-链接：https://leetcode-cn.com/problems/01-matrix/
-"""
-class Solution:
-    def updateMatrix(self, mat: List[List[int]]) -> List[List[int]]:
-        rows = len(mat)
-        cols = len(mat[0])
-        offset = [0, 1, 0, -1, 0]
-        # 队列中保存距离已确定的1	
-        queue = collections.deque()
-        # 所有与0相邻的1作为种子点，其值为1，其余1初始化为-1，表示距离待定
-        for row in range(rows):
-            for col in range(cols):
-                if mat[row][col] == 1:
-                    boundary = False
-                    for i in range(4):
-                        neigh_row, neigh_col = row + offset[i], col + offset[i + 1]
-                        if 0 <= neigh_row < rows and 0 <= neigh_col < cols and mat[neigh_row][neigh_col] == 0:
-                            queue.append((row, col))
-                            boundary = True
-                            break
-                    if not boundary:
-                        mat[row][col] = -1
-        
-        while queue:
-            row, col = queue.popleft()
-            for i in range(4):
-                neigh_row, neigh_col = row + offset[i], col + offset[i + 1]
-                # 领域内有距离待决的1
-                if 0 <= neigh_row < rows and 0 <= neigh_col < cols and mat[neigh_row][neigh_col] == -1:
-                    mat[neigh_row][neigh_col] = mat[row][col] + 1
-                    queue.append((neigh_row, neigh_col))
-        
-        return mat
-```
-
-
-
-
-
 ## 图的DFS
 
 树的遍历路径不会成环，而图的遍历路径可能成环，因此图遍历中需要额外保存节点状态，一方面防止遍历陷入无限循环，另一方面状态作为memoization实现短路。
@@ -997,55 +980,6 @@ def graph_dfs(seed_node, g, node_status):
 # 考虑好seeds是什么，状态存什么
 for seed in seeds:
     graph_dfs(seed, g, node_status)
-```
-
-
-
-### 130. Surrounded regions
-
-核心方法：`图的BFS`
-
-解题思路：将与边界上的O相连的O都置为一个中间态，遍历结束后剩下的O就是要被X填充的
-
-```python
-"""
-给你一个 m x n 的矩阵 board ，由若干字符 'X' 和 'O' ，找到所有被 'X' 围绕的区域，并将这些区域里所有的 'O' 用 'X' 填充。
-
-链接：https://leetcode-cn.com/problems/surrounded-regions/
-"""
-class Solution:
-    def solve(self, board: List[List[str]]) -> None:
-        rows = len(board)
-        cols = len(board[0])
-        offset = [0, 1, 0, -1, 0]
-		# 从4个边界出发遍历
-        queue = collections.deque()
-        for i in range(rows):
-            if board[i][0] == "O":
-                queue.append((i, 0))
-            if board[i][cols - 1] == "O":
-                queue.append((i, cols - 1))
-        for j in range(cols):
-            if board[0][j] == "O":
-                queue.append((0, j))
-            if board[rows - 1][j] == "O":
-                queue.append((rows - 1, j))
-
-        while queue:
-            row, col = queue.popleft()
-            board[row][col] = "Y"
-            for i in range(4):
-                next_row = row + offset[i]
-                next_col = col + offset[i + 1]
-                if 0 <= next_row < rows and 0 <= next_col < cols and board[next_row][next_col] == "O":
-                    queue.append((next_row, next_col))
-
-        for i in range(rows):
-            for j in range(cols):
-                if board[i][j] == "O":
-                    board[i][j] = "X"
-                elif board[i][j] == "Y":
-                    board[i][j] = "O"
 ```
 
 
@@ -1747,9 +1681,104 @@ class Solution:
 
 
 
+### 96. Unique binary search trees
+
+核心方法：
+
+解题思路：
+
+```python
+"""
+给你一个整数 n ，求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。
+
+链接：https://leetcode-cn.com/problems/unique-binary-search-trees/
+"""
+class Solution:
+    def __init__(self):
+        self.results = {0: 1, 1: 1}
+
+    def numTrees(self, n: int) -> int:
+        # n表示参与建树的节点数，返回值表示n个节点组成的二叉搜索树个数
+        if n in self.results:
+            return self.results[n]
+
+        total_count = 0
+        # root节点必须占用一个节点，因此剩下共分配的总结点数是n - 1
+        for left_count in range(0, n):
+            right_count = n - 1 - left_count
+            self.results[left_count] = self.numTrees(left_count)
+            self.results[right_count] = self.numTrees(right_count)
+            total_count += self.results[left_count] * self.results[right_count]
+        self.results[n] = total_count
+
+        return total_count
+```
+
+
+
+### 95. Unique binary search trees II
+
+核心方法：`回溯`，`分治`，`DFS`
+
+解题思路：
+
+```python
+"""
+给你一个整数 n ，请你生成并返回所有由 n 个节点组成且节点值从 1 到 n 互不相同的不同 二叉搜索树 。可以按 任意顺序 返回答案。
+
+链接：https://leetcode-cn.com/problems/unique-binary-search-trees-ii/
+"""
+class Solution:
+    def generateTrees(self, n: int) -> List[TreeNode]:
+        vals = [i+1 for i in range(n)]
+        results = self.helper(vals)
+        return results
+    
+    def helper(self, vals: List[int]) -> List[TreeNode]:
+        if not vals:
+            return None
+
+        # vals中的任何一点都可以作为子树顶点
+        roots = []
+        for i in range(len(vals)):
+            left_trees = self.helper(vals[:i])
+            right_trees = self.helper(vals[(i+1):])
+            
+            if not left_trees and not right_trees:
+                root = TreeNode(vals[i])
+                roots.append(root)
+            elif not left_trees:
+                for right_tree in right_trees:
+                    root = TreeNode(vals[i])
+                    root.right = right_tree
+                    roots.append(root)
+            elif not right_trees:
+                for left_tree in left_trees:
+                    root = TreeNode(vals[i])
+                    root.left = left_tree
+                    roots.append(root)
+            else:
+                for left_tree in left_trees:
+                    for right_tree in right_trees:
+                        root = TreeNode(vals[i])
+                        root.left = left_tree
+                        root.right = right_tree
+                        roots.append(root)
+        
+        return roots
+```
+
+
+
+
+
 #### 回溯和遍历的区别
 
-回溯：树上的DFS
+回溯：
+
+回溯是遍历，遍历的过程需要记录路径，所有分支组成一颗多叉树
+
+回溯是在遍历的过程中记录路径，背后是一颗树，可以使用DFS或BFS来实现遍历
 
 
 
@@ -1871,4 +1900,103 @@ class Solution:
 
 ```
 
-​	
+
+
+### 542. 01 matrix
+
+核心方法：`图的BFS`
+
+解题思路：从与0相邻的1开始
+
+```python
+"""
+给定一个由 0 和 1 组成的矩阵，找出每个元素到最近的 0 的距离。
+
+两个相邻元素间的距离为1。
+
+链接：https://leetcode-cn.com/problems/01-matrix/
+"""
+class Solution:
+    def updateMatrix(self, mat: List[List[int]]) -> List[List[int]]:
+        rows = len(mat)
+        cols = len(mat[0])
+        offset = [0, 1, 0, -1, 0]
+        # 队列中保存距离已确定的1	
+        queue = collections.deque()
+        # 所有与0相邻的1作为种子点，其值为1，其余1初始化为-1，表示距离待定
+        for row in range(rows):
+            for col in range(cols):
+                if mat[row][col] == 1:
+                    boundary = False
+                    for i in range(4):
+                        neigh_row, neigh_col = row + offset[i], col + offset[i + 1]
+                        if 0 <= neigh_row < rows and 0 <= neigh_col < cols and mat[neigh_row][neigh_col] == 0:
+                            queue.append((row, col))
+                            boundary = True
+                            break
+                    if not boundary:
+                        mat[row][col] = -1
+        
+        while queue:
+            row, col = queue.popleft()
+            for i in range(4):
+                neigh_row, neigh_col = row + offset[i], col + offset[i + 1]
+                # 领域内有距离待决的1
+                if 0 <= neigh_row < rows and 0 <= neigh_col < cols and mat[neigh_row][neigh_col] == -1:
+                    mat[neigh_row][neigh_col] = mat[row][col] + 1
+                    queue.append((neigh_row, neigh_col))
+        
+        return mat
+```
+
+
+
+### 130. Surrounded regions
+
+核心方法：`图的BFS`
+
+解题思路：将与边界上的O相连的O都置为一个中间态，遍历结束后剩下的O就是要被X填充的
+
+```python
+"""
+给你一个 m x n 的矩阵 board ，由若干字符 'X' 和 'O' ，找到所有被 'X' 围绕的区域，并将这些区域里所有的 'O' 用 'X' 填充。
+
+链接：https://leetcode-cn.com/problems/surrounded-regions/
+"""
+class Solution:
+    def solve(self, board: List[List[str]]) -> None:
+        rows = len(board)
+        cols = len(board[0])
+        offset = [0, 1, 0, -1, 0]
+		# 从4个边界出发遍历
+        queue = collections.deque()
+        for i in range(rows):
+            if board[i][0] == "O":
+                queue.append((i, 0))
+            if board[i][cols - 1] == "O":
+                queue.append((i, cols - 1))
+        for j in range(cols):
+            if board[0][j] == "O":
+                queue.append((0, j))
+            if board[rows - 1][j] == "O":
+                queue.append((rows - 1, j))
+
+        while queue:
+            row, col = queue.popleft()
+            board[row][col] = "Y"
+            for i in range(4):
+                next_row = row + offset[i]
+                next_col = col + offset[i + 1]
+                if 0 <= next_row < rows and 0 <= next_col < cols and board[next_row][next_col] == "O":
+                    queue.append((next_row, next_col))
+
+        for i in range(rows):
+            for j in range(cols):
+                if board[i][j] == "O":
+                    board[i][j] = "X"
+                elif board[i][j] == "Y":
+                    board[i][j] = "O"
+```
+
+
+
