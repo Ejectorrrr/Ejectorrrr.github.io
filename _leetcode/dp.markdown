@@ -5,6 +5,37 @@ title: 动态规划篇
 
 
 
+
+
+
+
+基础数据结构：线性 -> 树 -> 图
+
+线性数据结构的遍历：顺序（单指针、双指针）、二分
+
+非线性数据结构的遍历：DFS、BFS、分治
+
+二分若特指能够计算出中点索引的情况，分治就是对二分在非线性数据结构上的拓展
+
+动态规划、回溯、贪心只是构筑在数据结构及其遍历方法之上的优化解法
+
+
+
+##### 基本概念：
+
+- 无后效性
+- memoization
+
+
+
+##### 专题：
+
+- [背包问题]({% link _leetcode/package_problem.markdown %})
+- [路径问题]({% link _leetcode/path_problem.markdown%})
+- 字符串匹配
+
+
+
 ### 5. Longest palindromic substring
 
 核心方法：`二维动态规划`，`双指针`
@@ -44,6 +75,108 @@ class Solution:
                         max_len = end - start + 1
 
         return s[max_start:(max_end + 1)]
+```
+
+
+
+### 518. Coin change 2
+
+核心方法：
+
+解题思路：
+
+```python
+"""
+给你一个整数数组 coins 表示不同面额的硬币，另给一个整数 amount 表示总金额。
+
+请你计算并返回可以凑成总金额的硬币组合数。如果任何硬币组合都无法凑出总金额，返回 0 。
+
+假设每一种面额的硬币有无限个。 
+
+题目数据保证结果符合 32 位带符号整数。
+
+链接：https://leetcode-cn.com/problems/coin-change-2
+"""
+class Solution:
+    def change(self, amount: int, coins: List[int]) -> int:
+        # 金额i对应的组合数
+        dp = [0] * (amount + 1)
+        dp[0] = 1
+
+        # 内外循环如果互换，则会出现重复组合
+        for coin in coins:
+            # 按顺序出每枚硬币时，所能形成的面值的组合数
+            for i in range(coin, amount + 1):
+                dp[i] += dp[i - coin]
+
+        return dp[-1]
+```
+
+
+
+### 70. Climbing stairs
+
+核心方法：
+
+解题思路：与Fibonacci数组一样，分治法存在大量重复计算，使用memoization优化的空间复杂度为O(N)，最优解法是将自顶向下的递归转化为自底向上的迭代
+
+```python
+"""
+假设你正在爬楼梯。需要 n 阶你才能到达楼顶。
+每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？
+注意：给定 n 是一个正整数。
+
+链接：https://leetcode-cn.com/problems/climbing-stairs/
+"""
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        # 初始状态，分别对应n=0和n=1时的结果
+        a = 1
+        b = 1
+        for _ in range(n):
+            a, b = b, a + b
+
+        return a
+```
+
+
+
+### 72. Edit distance
+
+核心方法：
+
+解题思路：
+
+```python
+"""
+给你两个单词 word1 和 word2，请你计算出将 word1 转换成 word2 所使用的最少操作数 。
+
+你可以对一个单词进行如下三种操作：
+- 插入一个字符
+- 删除一个字符
+- 替换一个字符
+
+链接：https://leetcode-cn.com/problems/edit-distance
+"""
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        # d[i][j]表示word1的前i位和word2的前j位之间的编辑距离
+        d = [[0 for _ in range(len(word2) + 1)] for _ in range(len(word1) + 1)]
+
+        # 初始化
+        for i in range(len(word1) + 1):
+            d[i][0] = i
+        for j in range(len(word2) + 1):
+            d[0][j] = j
+
+        for i in range(1, len(word1) + 1):
+            for j in range(1, len(word2) + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1])
+                else:
+                    d[i][j] = min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + 1)
+        
+        return d[-1][-1]
 ```
 
 
@@ -119,127 +252,7 @@ class Solution:
 
 
 
-### 62. Unique paths
 
-核心方法：`暴力`，`棋盘动态规划`，`memoization`
-
-解题思路：棋盘动态规划是指一类特殊的动态规划，用二维矩阵保存状态，从右小角向左上角更新状态，每次只能朝左或朝上移动
-
-```python
-"""
-一个机器人位于一个m x n网格的左上角（起始点在下图中标记为“Start”）。
-机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
-
-问总共有多少条不同的路径？
-
-链接：https://leetcode-cn.com/problems/unique-paths
-"""
-class Solution:
-    def uniquePaths(self, m: int, n: int) -> int:
-        """
-        每一个点到达终点的路径数，等于其右侧点到达终点的路径数+下方点到达终点的路径数
-        """
-        path_count = [[0 for _ in range(n)] for _ in range(m)]
-        # 终点到达自己有1条路径
-        path_count[-1][-1] = 1
-
-        # 从终点开始向起点回溯（为了避免后效性，和查找回文串时同理）
-        for row in range(m - 1, -1, -1):
-            for col in range(n - 1, -1, -1):
-                # 最下边一行
-                if row == m - 1 and col < n - 1:
-                    path_count[row][col] = path_count[row][col + 1]
-                # 最右边一列
-                if row < m - 1 and col == n - 1:
-                    path_count[row][col] = path_count[row + 1][col]
-                if row < m - 1 and col < n - 1:
-                    path_count[row][col] = path_count[row + 1][col] + path_count[row][col + 1]
-
-        return path_count[0][0]
-```
-
-
-
-### 63. Unique paths II
-
-核心方法：`暴力`，`棋盘动态规划`，`memoization`
-
-解题思路：
-
-```python
-"""
-一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。
-机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
-
-现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？
-
-链接：https://leetcode-cn.com/problems/unique-paths-ii
-"""
-class Solution:
-    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:
-        if obstacleGrid[-1][-1] == 1:
-            return 0
-
-        m = len(obstacleGrid)
-        n = len(obstacleGrid[0])
-        for i in range(m):
-            for j in range(n):
-                if obstacleGrid[i][j] == 1:
-                    obstacleGrid[i][j] = -1
-        obstacleGrid[-1][-1] = 1
-
-        for row in range(m - 1, -1, -1):
-            for col in range(n - 1, -1, -1):
-                if obstacleGrid[row][col] == -1:
-                    obstacleGrid[row][col] = 0
-                    continue
-                # 最下边一行
-                if row == m - 1 and col < n - 1:
-                    obstacleGrid[row][col] = obstacleGrid[row][col + 1]
-                # 最右边一列
-                if row < m - 1 and col == n - 1:
-                    obstacleGrid[row][col] = obstacleGrid[row + 1][col]
-                if row < m - 1 and col < n - 1:
-                    obstacleGrid[row][col] = obstacleGrid[row + 1][col] + obstacleGrid[row][col + 1]
-
-        return obstacleGrid[0][0]
-```
-
-
-
-### 64. Minimum path sum
-
-核心方法：`暴力`，`棋盘动态规划`，`memoization`
-
-解题思路：
-
-```python
-"""
-给定一个包含非负整数的m x n网格grid，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
-
-说明：每次只能向下或者向右移动一步。
-
-链接：https://leetcode-cn.com/problems/minimum-path-sum
-"""
-class Solution:
-    def minPathSum(self, grid: List[List[int]]) -> int:
-        m = len(grid)
-        n = len(grid[0])
-
-        # 从右下角往左上角遍历，避免后效性
-        for row in range(m - 1, -1, -1):
-            for col in range(n - 1, -1, -1):
-                # 最后一排
-                if row == m - 1 and col < n - 1:
-                    grid[row][col] = grid[row][col] + grid[row][col + 1]
-                # 最后一列
-                if row < m - 1 and col == n - 1:
-                    grid[row][col] = grid[row][col] + grid[row + 1][col]
-                if row < m - 1 and col < n - 1:
-                    grid[row][col] = grid[row][col] + min(grid[row + 1][col], grid[row][col + 1])
-
-        return grid[0][0]
-```
 
 ### 152. Maximum product subarray
 
@@ -275,5 +288,40 @@ class Solution:
             max_prod = max(max_prod, cur_min[i], cur_max[i])
 
         return max_prod
+```
+
+
+
+### 1143. Longest common subsequence
+
+核心方法：
+
+解题思路：
+
+```python
+"""
+给定两个字符串 text1 和 text2，返回这两个字符串的最长 公共子序列 的长度。如果不存在 公共子序列 ，返回 0 。
+
+一个字符串的 子序列 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
+
+例如，"ace" 是 "abcde" 的子序列，但 "aec" 不是 "abcde" 的子序列。
+两个字符串的 公共子序列 是这两个字符串所共同拥有的子序列。
+
+链接：https://leetcode-cn.com/problems/longest-common-subsequence
+"""
+class Solution:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+        # text1的前i子串与text2的前j子串间的最长公共子序列
+        # 边界都是0，因此不需要专门处理
+        dp = [[0 for _ in range(len(text2) + 1)] for _ in range(len(text1) + 1)]
+
+        for i in range(1, len(text1) + 1):
+            for j in range(1, len(text2) + 1):
+                if text1[i - 1] == text2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                else:
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+        return dp[-1][-1]
 ```
 

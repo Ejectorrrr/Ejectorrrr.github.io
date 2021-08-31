@@ -7,9 +7,20 @@ title: 分治与贪心篇
 
 ## 一、分治
 
+基本思想：原问题可以被递归地分解为多个子问题，直到子问题规模变得足够简单。
+
+具体分为两步：
+
+1. 下钻至叶节点时，如何解决足够简单的子问题
+2. 回退过程中，如何融合子问题解得到父问题解
+
+整体流程类似后序遍历
+
+
+
 ### 105. Construct binary tree from preorder and inorder traversal
 
-核心方法：`二叉树`，`二分`
+核心方法：`分治`，`二分`
 
 解题思路：
 
@@ -59,7 +70,7 @@ class Solution:
 
 ### 106. Construct binary tree from inorder and postorder traversal
 
-核心方法：`二叉树`，`二分`
+核心方法：`分治`，`二分`
 
 解题思路：
 
@@ -112,7 +123,13 @@ class Solution:
 
 
 
-## 二、greedy
+## 二、贪心
+
+基本思想：在每一步中都选取当前状态下的最优解，从而希望最终结果也是最优的（局部最优解能决定全局最优解）
+
+适合存在最优子结构的问题
+
+分治和贪心都有分解原问题的过程，使得最终要解决的子问题比原问题更简单直观，但分治强调在回退过程中如何融合各子问题的解，而贪心强调如何选取子问题下的最优解
 
 
 
@@ -132,6 +149,16 @@ class Solution:
 
 链接：https://leetcode-cn.com/problems/jump-game/
 """
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        farmost_pos = 0
+        for i in range(len(nums)):
+            if i > farmost_pos:
+                return False
+            
+            farmost_pos = max(farmost_pos, i + nums[i])
+        
+        return True
 ```
 
 
@@ -155,6 +182,8 @@ class Solution:
 链接：https://leetcode-cn.com/problems/jump-game-ii
 """
 ```
+
+
 
 ### 120. Triangle
 
@@ -183,5 +212,64 @@ class Solution:
                     triangle[row - 1][col - 1] if col > 0 else float('inf'))
         
         return min(triangle[-1])
+```
+
+
+
+背包问题
+
+
+
+### 743. Network delay time
+
+核心方法：
+
+解决思路：
+
+- 多源最短路，Floyd，邻接矩阵
+- 单源最短路，Dijkstra，邻接矩阵/邻接表
+
+```python
+"""
+有 n 个网络节点，标记为 1 到 n。
+
+给你一个列表 times，表示信号经过 有向 边的传递时间。 times[i] = (ui, vi, wi)，其中 ui 是源节点，vi 是目标节点， wi 是一个信号从源节点传递到目标节点的时间。
+
+现在，从某个节点 K 发出一个信号。需要多久才能使所有节点都收到信号？如果不能使所有节点收到信号，返回 -1 。
+
+链接：https://leetcode-cn.com/problems/network-delay-time
+"""
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+        # Dij算法
+
+        # 1. 将节点分为“已确定最短路径”和“未确定最短路径”的两部分
+        # 2. 选取当前“未确定最短路径”的所有节点中距离起点最近的，并将其设置为“已确定最短路径”的节点
+        # 3. 更新该“已确定最短路径”节点的所有邻居节点到达起点的最短距离
+
+        # 注：所有节点（除起点）到起点的初始距离都是inf
+
+        # 状态变量
+        min_dist = [float("inf")] * n
+        determined = [False] * n
+
+        min_dist[k - 1] = 0
+
+        # 一共有n个节点，因此需要对状态变量更新n次
+        for _ in range(n):
+            chosen_node = -1
+            # 选取当前“未确定”节点中距离起点最近的，设置为“已确定”
+            for cur_node, status in enumerate(determined):
+                if not status and (chosen_node == -1 or min_dist[cur_node] < min_dist[chosen_node]):
+                    chosen_node = cur_node
+            determined[chosen_node] = True
+
+            # 更新该“已确定”节点的邻居节点到达起点的最短距离
+            for src, dst, wgt in times:
+                if src - 1 == chosen_node:
+                    min_dist[dst - 1] = min(min_dist[dst - 1], min_dist[chosen_node] + wgt)
+        
+        max_min_dist = max(min_dist)
+        return -1 if max_min_dist == float("inf") else max_min_dist
 ```
 
